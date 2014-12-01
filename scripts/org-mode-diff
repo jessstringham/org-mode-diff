@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+import argparse
+
+from org_mode_diff.diff import struct_diff
+from org_mode_diff.parser import parse_lines
+from org_mode_diff.models import DiffTuple
+
+
+def process_filename(filename):
+    return parse_lines(open(filename).readlines())
+
+
+def process_filenames(old_file_name, new_file_name, headers_only):
+    old_org = process_filename(old_file_name)
+    new_org = process_filename(new_file_name)
+
+    struct_diff(DiffTuple(old_org, new_org), headers_only)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Org Structural Diff.')
+
+    parser.add_argument('--headers-only', dest='headers_only', action='store_true',
+                        default=False,
+                        help='Only diff the headers and properties, not text comments.')
+
+    parser.add_argument(
+        '--old',
+        dest='old',
+        help='The original file.')
+    parser.add_argument(
+        '--new', 
+        dest='new',
+        help='The updated file.')
+    
+    args = parser.parse_args()
+
+    process_filenames(args.old, args.new, args.headers_only)
